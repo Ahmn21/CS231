@@ -1,5 +1,4 @@
 #include <iostream>
-#include <iostream>
 #include <fstream>
 using namespace std;
 
@@ -47,7 +46,12 @@ void encrypt_decrypt::decrypt(string* recieved_file_name)
 {
     char map[66]={'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9',' ','\n','.',','};
     ifstream file_read;
-    file_read.open(*recieved_file_name+".txt");
+    file_read.open(*recieved_file_name+"_encrypted.txt");
+    if(file_read.fail())
+    {
+        cout<<"\nNo such encrypted file exists!!!\n\n";
+        return;
+    }
     char first_char, char_from_file;
     file_read.get(first_char);
     file_read.close();
@@ -73,7 +77,7 @@ void encrypt_decrypt::decrypt(string* recieved_file_name)
         cout<<"\nFile not encrypted\n";
         return;
     }
-    file_read.open(*recieved_file_name+".txt");
+    file_read.open(*recieved_file_name+"_encrypted.txt");
     while(file_read.get(char_from_file))
     {
         decrypt_write(recieved_file_name, &char_from_file, &difference_in_key);
@@ -103,7 +107,7 @@ void encrypt_decrypt::encrypt(string* recieved_file_name, char* recieved_char,co
             }
             else
             {
-                cout<<"\nError creating cipher file!!\n";
+                cout<<"\nError creating encrypted file!!\n";
             }
             output_file.close();
             break;
@@ -116,6 +120,11 @@ void encrypt_decrypt::file_read(string* recieved_file_name,const int* recieved_k
     char word_from_file;
     ifstream input_file;
     input_file.open(*recieved_file_name+".txt");
+    if (input_file.fail())
+    {
+        cout<<"\nNo such file exists!!!\n\n";
+        return;
+    }
     if(input_file.good() && input_file.is_open())
     {
         while(input_file.get(word_from_file))
