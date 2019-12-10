@@ -8,8 +8,53 @@ public:
     void file_read(string*,const int*, int*);
     void encrypt(string*,char*,const int*);
     void decrypt(string*);
-    void decrypt_write(string*, char*, int*, bool);
+    void decrypt_write(string*, char*, int*);
 };
+
+void encrypt_decrypt::decrypt_write(string* recieved_file_name, char* recieved_char_from_file, int* recieved_key)
+{
+    char map[66]={'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9',' ','\n','.',','};
+    string file_name_decrypted=*recieved_file_name+"_decrypted";
+    ofstream file_write;
+    file_write.open(file_name_decrypted);
+}
+
+void encrypt_decrypt::decrypt(string* recieved_file_name)
+{
+    char map[66]={'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9',' ','\n','.',','};
+    ifstream file_read;
+    file_read.open(*recieved_file_name);
+    char first_char, char_from_file;
+    file_read.get(first_char);
+    file_read.close();
+    int key_read_from_file, difference_in_key;
+    for(int i=0;i<66;i++)
+    {
+        if(first_char==map[i])
+        {
+            key_read_from_file=i;
+            break;
+        }
+    }
+    if(key_read_from_file>29)
+    {
+        difference_in_key=key_read_from_file-29;
+    }
+    else if(key_read_from_file<29)
+    {
+        difference_in_key=key_read_from_file+29;
+    }
+    else if(key_read_from_file==29)
+    {
+        cout<<"\nFile not encrypted\n";
+        return;
+    }
+    file_read.open(*recieved_file_name);
+    while(file_read.get(char_from_file))
+    {
+        decrypt_write(recieved_file_name, &char_from_file, &difference_in_key);
+    }
+}
 
 void encrypt_decrypt::encrypt(string* recieved_file_name, char* recieved_char,const int* recieved_key)
 {
