@@ -1,29 +1,53 @@
 #include <iostream>
+#include <iostream>
 #include <fstream>
 using namespace std;
 
 class encrypt_decrypt
 {
 public:
-    void file_read(string*,const int*, int*);
+    void file_read(string*,const int*);
     void encrypt(string*,char*,const int*);
     void decrypt(string*);
-    void decrypt_write(string*, char*, int*);
+    void decrypt_write(string*, char*,const int*);
 };
 
-void encrypt_decrypt::decrypt_write(string* recieved_file_name, char* recieved_char_from_file, int* recieved_key)
+void encrypt_decrypt::decrypt_write(string* recieved_file_name, char* recieved_char_from_file,const int* recieved_key)
 {
     char map[66]={'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9',' ','\n','.',','};
-    string file_name_decrypted=*recieved_file_name+"_decrypted";
+    string file_name_decrypted=*recieved_file_name+"_decrypted.txt";
     ofstream file_write;
-    file_write.open(file_name_decrypted);
+    int current_char_key;
+    for(int i=0;i<66;i++)
+    {
+        if(*recieved_char_from_file==map[i])
+        {
+            current_char_key=i;
+            break;
+        }
+    }
+    if(current_char_key==0)
+    {
+        current_char_key=66-*recieved_key;
+    }
+    else if(current_char_key-*recieved_key<0)
+    {
+        current_char_key=current_char_key-*recieved_key+66;
+    }
+    else
+    {
+        current_char_key=current_char_key-*recieved_key;
+    }
+    file_write.open(file_name_decrypted, ios::out | ios::app);
+    file_write<<map[current_char_key];
+    file_write.close();
 }
 
 void encrypt_decrypt::decrypt(string* recieved_file_name)
 {
     char map[66]={'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9',' ','\n','.',','};
     ifstream file_read;
-    file_read.open(*recieved_file_name);
+    file_read.open(*recieved_file_name+".txt");
     char first_char, char_from_file;
     file_read.get(first_char);
     file_read.close();
@@ -42,18 +66,19 @@ void encrypt_decrypt::decrypt(string* recieved_file_name)
     }
     else if(key_read_from_file<29)
     {
-        difference_in_key=key_read_from_file+29;
+        difference_in_key=key_read_from_file-29+65;
     }
     else if(key_read_from_file==29)
     {
         cout<<"\nFile not encrypted\n";
         return;
     }
-    file_read.open(*recieved_file_name);
+    file_read.open(*recieved_file_name+".txt");
     while(file_read.get(char_from_file))
     {
         decrypt_write(recieved_file_name, &char_from_file, &difference_in_key);
     }
+    file_read.close();
 }
 
 void encrypt_decrypt::encrypt(string* recieved_file_name, char* recieved_char,const int* recieved_key)
@@ -67,7 +92,7 @@ void encrypt_decrypt::encrypt(string* recieved_file_name, char* recieved_char,co
             char_key=i+*recieved_key;
             if(char_key>65)
             {
-                char_key=char_key - 65;
+                char_key=char_key - 66;
             }
             ofstream output_file;
             string cipher_file=*recieved_file_name+"_encrypted.txt";
@@ -86,7 +111,7 @@ void encrypt_decrypt::encrypt(string* recieved_file_name, char* recieved_char,co
     }
 }
 
-void encrypt_decrypt::file_read(string* recieved_file_name,const int* recieved_key, int* recieved_choice)
+void encrypt_decrypt::file_read(string* recieved_file_name,const int* recieved_key)
 {
     char word_from_file;
     ifstream input_file;
@@ -95,14 +120,7 @@ void encrypt_decrypt::file_read(string* recieved_file_name,const int* recieved_k
     {
         while(input_file.get(word_from_file))
         {
-            if(*recieved_choice==1)
-            {
-                encrypt(recieved_file_name, &word_from_file, recieved_key);
-            }
-            else if(*recieved_choice==2)
-            {
-                decrypt(recieved_file_name);
-            }
+            encrypt(recieved_file_name, &word_from_file, recieved_key);
         }
         input_file.close();
     }
@@ -121,35 +139,33 @@ int main()
     {
         cout<<"1. Encrypt file\n2. Decrypt file\n0. Exit\nINPUT: ";
         cin>>choice;
-        if (choice==1 || choice==2)
+        if(choice==1)
         {
-            if(choice==1)
+            cout<<"NOTE: '.txt' extension will be appended by the program!!\nEnter file name to be encrypted: ";
+            cin.ignore();
+            getline(cin,file_name);
+            cout<<"Enter key: ";
+            cin>>random_key;
+            if (random_key>65)
             {
-                cout<<"NOTE: '.txt' extension will be appended by the program!!\nEnter file name to be encrypted: ";
-                cin.ignore();
-                getline(cin,file_name);
-                cout<<"Enter key: ";
-                cin>>random_key;
-                if (random_key>65)
-                {
-                    random_key=random_key%66;
-                }
-                else
-                {
-                    object.file_read(&file_name, &random_key, &choice);
-                }
+                random_key=random_key%66;
+                object.file_read(&file_name, &random_key);
             }
-            else if(choice==2)
+            else if(random_key>0 && random_key<66)
             {
-                cout<<"NOTE: '.txt' extension will be appended by the program!!\nEnter file name to be decrypted: ";
-                cin.ignore();
-                getline(cin,file_name);
-                object.file_read(&file_name, &random_key, &choice);
+                object.file_read(&file_name, &random_key);
             }
             else
             {
-                cout<<"\nInvalid choice!!!\n\n";
+                cout<<"\nInvalid key!!!\n";
             }
+        }
+        else if(choice==2)
+        {
+            cout<<"NOTE: '.txt' extension will be appended by the program!!\nEnter file name to be decrypted: ";
+            cin.ignore();
+            getline(cin,file_name);
+            object.decrypt(&file_name);
         }
         else if(choice==0)
         {
